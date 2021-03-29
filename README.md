@@ -1,4 +1,6 @@
-# XPVAR / TXPJSON (old version)
+# XPVAR (new)
+# TXPJSON (old)
+
 ## Easy variable supported JSON format for Delphi
 * Simple declare and assign any value. (include associated array)
 * Convert to JSON text and from JSON text. (JSON and JSONPretty properties)
