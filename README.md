@@ -1,6 +1,6 @@
 # XPVAR (new) / TXPJSON (old)
 
-## [Moved project to XPVar](https://github.com/slumpmax/XPVariant)
+## [Moved project to XPVariant](https://github.com/slumpmax/XPVariant)
 
 ## Easy variable supported JSON format for Delphi
 * Simple declare and assign any value. (included associated array)
