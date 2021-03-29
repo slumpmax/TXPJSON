@@ -3,7 +3,7 @@ unit Form_Main;
 interface
 
 uses
-  XPJSON,
+  XPVariant,
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, StdCtrls;
 
