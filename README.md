@@ -3,6 +3,7 @@
 * Simple declare and assign any value to JSON variable (include associated array)
 * Convert to text and from text (Text and TextPretty property)
 
+## Last changed
 * *Changed TXPJSON to XPVar (can use TXPJSON instead)*
 * *Changed JsonArrayOf to XPArray (can use JsonArrayOf instead)*
 * *Changed Text properyt to JSON (can use Text instead)*
