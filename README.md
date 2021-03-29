@@ -3,14 +3,14 @@
 * Simple declare and assign any value to JSON variable (include associated array)
 * Convert to text and from text (Text and TextPretty property)
 
-*Changed TXPJSON to XPVar (can use TXPJSON instead)*
-*Changed JsonArrayOf to XPArray (can use JsonArrayOf instead)*
-*Changed Text properyt to JSON (can use Text instead)*
-*Changed TextPretty properyt to JSONPretty (can use TextPretty instead)*
-*Add XPKey to define key/value array members*
-*AsInteger can use AsInt  as well*
-*AsBoolean can use AsBool as well*
-*AsString can use AsStr as well*
+* *Changed TXPJSON to XPVar (can use TXPJSON instead)*
+* *Changed JsonArrayOf to XPArray (can use JsonArrayOf instead)*
+* *Changed Text properyt to JSON (can use Text instead)*
+* *Changed TextPretty properyt to JSONPretty (can use TextPretty instead)*
+* *Add XPKey to define key/value array members*
+* *AsInteger can use AsInt  as well*
+* *AsBoolean can use AsBool as well*
+* *AsString can use AsStr as well*
 
 ```Delphi
 var
