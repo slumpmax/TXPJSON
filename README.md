@@ -30,7 +30,7 @@ begin
   k6['9'] := 'B';
   k7 := k6;
   k7['flag'] := 'end';
-  k8.Text := k6.Text;
+  k8.JSON := k6.JSON;
   k8['members'] := XPArray(['continue', 123]);
   k9 := XPArray([
     XPKey('ID', 2),
@@ -41,7 +41,7 @@ begin
     ])),
     'no key'
   ]);
-  k10.Text := Memo2.Text;
+  k10.JSON := Memo2.JSON;
   Memo1.Lines.Add(Format('k0: %s', [k0.JSON]));
   Memo1.Lines.Add(Format('k1: %s', [k1.JSON]));
   Memo1.Lines.Add(Format('k2: %s', [k2.JSON]));
