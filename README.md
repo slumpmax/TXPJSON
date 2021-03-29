@@ -6,8 +6,8 @@
 ## Last changed
 * *Changed TXPJSON to XPVar (can use TXPJSON instead)*
 * *Changed JsonArrayOf to XPArray (can use JsonArrayOf instead)*
-* *Changed Text properyt to JSON (can use Text instead)*
-* *Changed TextPretty properyt to JSONPretty (can use TextPretty instead)*
+* *Changed Text property to JSON (can use Text instead)*
+* *Changed TextPretty property to JSONPretty (can use TextPretty instead)*
 * *Add XPKey to define key/value array members*
 * *AsInteger can use AsInt  as well*
 * *AsBoolean can use AsBool as well*
