@@ -1,5 +1,4 @@
-# XPVAR (new)
-# TXPJSON (old)
+# XPVAR (new) / TXPJSON (old)
 
 ## [Moved project to XPVar](https://github.com/slumpmax/XPVariant)
 
