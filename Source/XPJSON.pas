@@ -6,266 +6,319 @@ uses
   StrUtils, SysUtils, Math;
 
 type
-  TXPJsonType = (
-    JSON_UNDEFINED  = 0,
-    JSON_NULL       = 1,
-    JSON_INTEGER    = 2,
-    JSON_BOOLEAN    = 3,
-    JSON_FLOAT      = 4,
-    JSON_STRING     = 5,
-    JSON_ARRAY      = 6
+  TXPVarType = (
+    XP_UNDEFINED  = 0,
+    XP_NULL       = 1,
+    XP_INTEGER    = 2,
+    XP_BOOLEAN    = 3,
+    XP_FLOAT      = 4,
+    XP_STRING     = 5,
+    XP_ARRAY      = 6,
+    XP_KEY        = 7
   );
 
-  TXPJsonNull = class(TInterfacedObject, IInterface)
-  end;
-
-  TXPJsonInteger = class(TInterfacedObject, IInterface)
+  TXPVarInteger = class(TInterfacedObject, IInterface)
   public
     Value: Integer;
     constructor Create(AValue: Integer = 0);
   end;
 
-  TXPJsonBoolean = class(TInterfacedObject, IInterface)
+  TXPVarBoolean = class(TInterfacedObject, IInterface)
   public
     Value: Boolean;
     constructor Create(AValue: Boolean = False);
   end;
 
-  TXPJsonFloat = class(TInterfacedObject, IInterface)
+  TXPVarFloat = class(TInterfacedObject, IInterface)
   public
     Value: Double;
     constructor Create(AValue: Double = 0.0);
   end;
 
-  TXPJsonString = class(TInterfacedObject, IInterface)
+  TXPVarString = class(TInterfacedObject, IInterface)
   public
     Value: string;
     constructor Create(AValue: string = '');
   end;
 
-  TXPJsonArray = class;
-  IXPJsonArray = interface;
+  TXPVarKey = class;
+  TXPVarArray = class;
 
-  TXPJson = record
+  XPVar = record
   private
     FInterface: IInterface;
-    FType: TXPJsonType;
-    procedure SetType(AType: TXPJsonType);
-    function GetValueOfInt(AKey: Integer): TXPJson;
-    procedure SetValueOfInt(AKey: Integer; AValue: TXPJson);
-    function GetValueOfBool(AKey: Boolean): TXPJson;
-    procedure SetValueOfBool(AKey: Boolean; AValue: TXPJson);
-    function GetValues(AKey: string): TXPJson;
-    procedure SetValues(AKey: string; AValue: TXPJson);
-    function GetText: string;
-    procedure SetText(AValue: string);
+    FType: TXPVarType;
+    procedure SetType(AType: TXPVarType);
+    function GetValueOfInt(AKey: Integer): XPVar;
+    procedure SetValueOfInt(AKey: Integer; AValue: XPVar);
+    function GetValueOfBool(AKey: Boolean): XPVar;
+    procedure SetValueOfBool(AKey: Boolean; AValue: XPVar);
+    function GetValues(AKey: string): XPVar;
+    procedure SetValues(AKey: string; AValue: XPVar);
+    function GetJSON: string;
+    procedure SetJSON(AValue: string);
+    function GetJSONPretty: string;
     function GetAsInteger: Integer;
     function GetAsBoolean: Boolean;
     function GetAsFloat: Double;
     function GetAsString: string;
-    function GetAsArray: TXPJsonArray;
+    function GetAsArray: TXPVarArray;
+    function GetAsKey: TXPVarKey;
     procedure SetAsInteger(AValue: Integer);
     procedure SetAsBoolean(AValue: Boolean);
     procedure SetAsFloat(AValue: Double);
     procedure SetAsString(AValue: string);
-    function GetTextPretty: string;
     function EncodeText(AIndent: Integer = -1): string;
+    procedure SetAsKey(AValue: TXPVarKey);
   public
     procedure Clear;
     function EscapeString(AString: string): string;
 
-    class operator Implicit(AValue: Pointer): TXPJson;
-    class operator Implicit(AValue: Boolean): TXPJson;
-    class operator Implicit(AValue: Integer): TXPJson;
-    class operator Implicit(AValue: Double): TXPJson;
-    class operator Implicit(AValue: string): TXPJson;
-    class operator Implicit(AValue: TXPJsonArray): TXPJson;
+    class operator Implicit(AValue: Pointer): XPVar;
+    class operator Implicit(AValue: Boolean): XPVar;
+    class operator Implicit(AValue: Integer): XPVar;
+    class operator Implicit(AValue: Double): XPVar;
+    class operator Implicit(AValue: string): XPVar;
+    class operator Implicit(AValue: TXPVarKey): XPVar;
+    class operator Implicit(AValue: TXPVarArray): XPVar;
 
-    class operator Implicit(AValue: TXPJson): Boolean;
-    class operator Implicit(AValue: TXPJson): Integer;
-    class operator Implicit(AValue: TXPJson): Double;
-    class operator Implicit(AValue: TXPJson): string;
+    class operator Implicit(AValue: XPVar): Boolean;
+    class operator Implicit(AValue: XPVar): Integer;
+    class operator Implicit(AValue: XPVar): Double;
+    class operator Implicit(AValue: XPVar): string;
 
-    class operator Negative(AValue: TXPJson): TXPJson;
+    class operator Negative(AValue: XPVar): XPVar;
 
-    class operator Add(A: TXPJson; B: Integer): TXPJson;
-    class operator Subtract(A: TXPJson; B: Integer): TXPJson;
+    class operator Add(A: XPVar; B: Integer): XPVar;
+    class operator Subtract(A: XPVar; B: Integer): XPVar;
+    class operator Subtract(A: Integer; B: XPVar): XPVar;
 
     property AsInteger: Integer read GetAsInteger write SetAsInteger;
-    property AsBoolean: Boolean read GetAsBoolean write SetAsBoolean;
-    property AsFloat: Double read GetAsFloat write SetAsFloat;
-    property AsString: string read GetAsString write SetAsString;
-    property AsArray: TXPJsonArray read GetAsArray;
+    property AsInt: Integer read GetAsInteger write SetAsInteger;
 
-    property Text: string read GetText write SetText;
-    property TextPretty: string read GetTextPretty write SetText;
-    property ValueType: TXPJsonType read FType write SetType;
-    property Values[AKey: Integer]: TXPJson read GetValueOfInt write SetValueOfInt; default;
-    property Values[AKey: Boolean]: TXPJson read GetValueOfBool write SetValueOfBool; default;
-    property Values[AKey: string]: TXPJson read GetValues write SetValues; default;
+    property AsBoolean: Boolean read GetAsBoolean write SetAsBoolean;
+    property AsBool: Boolean read GetAsBoolean write SetAsBoolean;
+
+    property AsFloat: Double read GetAsFloat write SetAsFloat;
+
+    property AsString: string read GetAsString write SetAsString;
+    property AsStr: string read GetAsString write SetAsString;
+
+    property AsArray: TXPVarArray read GetAsArray;
+    property AsKey: TXPVarKey read GetAsKey write SetAsKey;
+
+    property JSON: string read GetJSON write SetJSON;
+    property JSONPretty: string read GetJSONPretty write SetJSON;
+    property Text: string read GetJSON write SetJSON;
+    property TextPretty: string read GetJSONPretty write SetJSON;
+
+    property ValueType: TXPVarType read FType write SetType;
+    property Values[AKey: Integer]: XPVar read GetValueOfInt write SetValueOfInt; default;
+    property Values[AKey: Boolean]: XPVar read GetValueOfBool write SetValueOfBool; default;
+    property Values[AKey: string]: XPVar read GetValues write SetValues; default;
   end;
 
-  TXPJsonCodec = record
+//  IXPVarKey = interface
+//    function GetKey: string;
+//    function GetValue: XPVar;
+//    function SetValue(AValue: XPVar);
+//    property Key: string read GetKey;
+//    property Value: XPVar read GetValue write SetValue;
+//  end;
+
+  TXPVarKey = class(TInterfacedObject, IInterface)
+  public
+    Key: string;
+    Value: XPVar;
+    constructor Create; overload;
+    constructor Create(AKey: string; AValue: XPVar); overload;
+    constructor Create(AKey: Integer; AValue: XPVar); overload;
+    constructor Create(AKey: Boolean; AValue: XPVar); overload;
+  end;
+
+  XPVarItem = record
+    Key: string;
+    Value: XPVar;
+  end;
+
+  XPVarCodec = record
   private
     FPos, FMaxPos: Integer;
     FText: string;
     function GetChar: Char;
     function GetTrim: Char;
-    function GetNumber: TXPJson;
+    function GetNumber: XPVar;
     function GetString: string;
-    function GetValue: TXPJson;
+    function GetValue: XPVar;
   public
-    function Decode(AText: string): TXPJson;
+    function Decode(AText: string): XPVar;
   end;
+  TXPJson = XPVar;
 
-  TXPJsonItem = record
-    Key: string;
-    Value: TXPJson;
-  end;
+//  IXPVarArray = interface
+//    function GetValues(AKey: string): XPVar;
+//    procedure SetValues(AKey: string; AValue: XPVar);
+//    function GetAssociated: Boolean;
+//    procedure SetAssociated(AValue: Boolean);
+//    function GetKeys(AIndex: Integer): string;
+//    function GetItems(AIndex: Integer): XPVarItem;
+//    procedure Clear;
+//    function Count: Integer;
+//    function IndexOf(AKey: string; AStart: Integer = -1; AStop: Integer = -1): Integer;
+//    procedure Assign(AArray: TXPVarArray);
+//    function Push(AValue: XPVar): Integer;
+//    property Associated: Boolean read GetAssociated write SetAssociated;
+//    property Keys[AIndex: Integer]: string read GetKeys;
+//    property Items[AIndex: Integer]: XPVarItem read GetItems;
+//    property Values[AKey: string]: XPVar read GetValues write SetValues; default;
+//  end;
 
-  IXPJsonArray = interface
-    function GetValues(AKey: string): TXPJson;
-    procedure SetValues(AKey: string; AValue: TXPJson);
-    function GetAssociated: Boolean;
-    procedure SetAssociated(AValue: Boolean);
-    function GetKeys(AIndex: Integer): string;
-    function GetItems(AIndex: Integer): TXPJsonItem;
-    procedure Clear;
-    function Count: Integer;
-    function IndexOf(AKey: string; AStart: Integer = -1; AStop: Integer = -1): Integer;
-    procedure Assign(AArray: TXPJsonArray);
-    function Push(AValue: TXPJson): Integer;
-    property Associated: Boolean read GetAssociated write SetAssociated;
-    property Keys[AIndex: Integer]: string read GetKeys;
-    property Items[AIndex: Integer]: TXPJsonItem read GetItems;
-    property Values[AKey: string]: TXPJson read GetValues write SetValues; default;
-  end;
-
-  TXPJsonArray = class(TInterfacedObject, IXPJsonArray)
+  TXPVarArray = class(TInterfacedObject, IInterface)
   private
     FIndex: Integer;
     FAssociated: Boolean;
-    FItems: array of TXPJsonItem;
-    function GetValues(AKey: string): TXPJson;
-    procedure SetValues(AKey: string; AValue: TXPJson);
+    FItems: array of XPVarItem;
+    function GetValues(AKey: string): XPVar;
+    procedure SetValues(AKey: string; AValue: XPVar);
     function GetAssociated: Boolean;
     procedure SetAssociated(AValue: Boolean);
     function GetKeys(AIndex: Integer): string;
-    function GetItems(AIndex: Integer): TXPJsonItem;
+    function GetItems(AIndex: Integer): XPVarItem;
   public
     constructor Create;
     destructor Destroy; override;
     procedure Clear;
     function Count: Integer;
     function IndexOf(AKey: string; AStart: Integer = -1; AStop: Integer = -1): Integer;
-    procedure Assign(AArray: TXPJsonArray);
-    function Push(AValue: TXPJson): Integer;
+    procedure Assign(AArray: TXPVarArray);
+    function Push(AValue: XPVar): Integer;
     property Associated: Boolean read GetAssociated write SetAssociated;
     property Keys[AIndex: Integer]: string read GetKeys;
-    property Items[AIndex: Integer]: TXPJsonItem read GetItems;
-    property Values[AKey: string]: TXPJson read GetValues write SetValues; default;
+    property Items[AIndex: Integer]: XPVarItem read GetItems;
+    property Values[AKey: string]: XPVar read GetValues write SetValues; default;
   end;
 
-function JsonArrayOf(AValues: array of TXPJson): TXPJson;
-function JsonNull: TXPJson;
+function JsonArrayOf(AValues: array of XPVar): XPVar;
+function XPArray(AValues: array of XPVar): XPVar;
+function XPKey(AKey: string; AValue: XPVar): XPVar;
+function XPNone: XPVar;
+function XPNull: XPVar;
 
 implementation
 
-function JsonArrayOf(AValues: array of TXPJson): TXPJson;
+function JsonArrayOf(AValues: array of XPVar): XPVar;
+begin
+  Result := XPArray(AValues);
+end;
+
+function XPArray(AValues: array of XPVar): XPVar;
 var
-  arr: TXPJsonArray;
+  arr: TXPVarArray;
   n: Integer;
 begin
-  Result.SetType(JSON_ARRAY);
+  Result.SetType(XP_ARRAY);
   arr := Result.AsArray;
-  for n := 0 to High(AValues) do
+  for n := 0 to High(AValues) do arr.Push(AValues[n]);
+end;
+
+function XPKey(AKey: string; AValue: XPVar): XPVar;
+begin
+  Result.SetType(XP_KEY);
+  with TXPVarKey(Result.FInterface) do
   begin
-    arr.Push(AValues[n]);
+    Key := AKey;
+    Value := AValue;
   end;
 end;
 
-function JsonNull: TXPJson;
+function XPNone: XPVar;
 begin
-  Result.SetType(JSON_NULL);
+  Result.SetType(XP_UNDEFINED);
 end;
 
-{ TXPJson }
-
-procedure TXPJson.SetAsBoolean(AValue: Boolean);
+function XPNull: XPVar;
 begin
-  FInterface := TXPJsonBoolean.Create(AValue);
-  FType := JSON_BOOLEAN;
+  Result.SetType(XP_NULL);
 end;
 
-procedure TXPJson.SetAsFloat(AValue: Double);
+{ XPVar }
+
+procedure XPVar.SetAsBoolean(AValue: Boolean);
 begin
-  FInterface := TXPJsonFloat.Create(AValue);
-  FType := JSON_FLOAT;
+  FInterface := TXPVarBoolean.Create(AValue);
+  FType := XP_BOOLEAN;
 end;
 
-procedure TXPJson.SetAsInteger(AValue: Integer);
+procedure XPVar.SetAsFloat(AValue: Double);
 begin
-  FInterface := TXPJsonInteger.Create(AValue);
-  FType := JSON_INTEGER;
+  FInterface := TXPVarFloat.Create(AValue);
+  FType := XP_FLOAT;
 end;
 
-procedure TXPJson.SetAsString(AValue: string);
+procedure XPVar.SetAsInteger(AValue: Integer);
 begin
-  FInterface := TXPJsonString.Create(AValue);
-  FType := JSON_STRING;
+  FInterface := TXPVarInteger.Create(AValue);
+  FType := XP_INTEGER;
 end;
 
-procedure TXPJson.SetText(AValue: string);
+procedure XPVar.SetAsKey(AValue: TXPVarKey);
+begin
+  FInterface := TXPVarKey.Create(0, AValue);
+  FType := XP_KEY;
+end;
+
+procedure XPVar.SetAsString(AValue: string);
+begin
+  FInterface := TXPVarString.Create(AValue);
+  FType := XP_STRING;
+end;
+
+procedure XPVar.SetJSON(AValue: string);
 var
-  codec: TXPJsonCodec;
+  codec: XPVarCodec;
 begin
   Clear;
   Self := codec.Decode(AValue);
 end;
 
-procedure TXPJson.SetType(AType: TXPJsonType);
+procedure XPVar.SetType(AType: TXPVarType);
 begin
   case AType of
-    JSON_NULL     : FInterface := TXPJsonNull.Create;
-    JSON_INTEGER  : FInterface := TXPJsonInteger.Create;
-    JSON_BOOLEAN  : FInterface := TXPJsonBoolean.Create;
-    JSON_FLOAT    : FInterface := TXPJsonFloat.Create;
-    JSON_STRING   : FInterface := TXPJsonString.Create;
-    JSON_ARRAY    : FInterface := TXPJsonArray.Create;
+    XP_INTEGER  : FInterface := TXPVarInteger.Create;
+    XP_BOOLEAN  : FInterface := TXPVarBoolean.Create;
+    XP_FLOAT    : FInterface := TXPVarFloat.Create;
+    XP_STRING   : FInterface := TXPVarString.Create;
+    XP_ARRAY    : FInterface := TXPVarArray.Create;
+    XP_KEY      : FInterface := TXPVarKey.Create;
   else
     FInterface := nil;
   end;
   FType := AType;
 end;
 
-procedure TXPJson.SetValueOfBool(AKey: Boolean; AValue: TXPJson);
+procedure XPVar.SetValueOfBool(AKey: Boolean; AValue: XPVar);
 begin
-  SetValues(IfThen(Akey, '1', '0'), AValue);
+  SetValues(IfThen(AKey, '1', '0'), AValue);
 end;
 
-procedure TXPJson.SetValueOfInt(AKey: Integer; AValue: TXPJson);
+procedure XPVar.SetValueOfInt(AKey: Integer; AValue: XPVar);
 begin
   SetValues(IntToStr(AKey), AValue);
 end;
 
-procedure TXPJson.SetValues(AKey: string; AValue: TXPJson);
+procedure XPVar.SetValues(AKey: string; AValue: XPVar);
 begin
-  case FType of
-    JSON_UNDEFINED, JSON_NULL, JSON_ARRAY:
-      AsArray[AKey] := AValue;
-  else
-    raise Exception.Create('Can not set array member of other JSON type');
-  end;
+  AsArray[AKey] := AValue;
 end;
 
-class operator TXPJson.Subtract(A: TXPJson; B: Integer): TXPJson;
+class operator XPVar.Subtract(A: Integer; B: XPVar): XPVar;
 begin
-  case A.FType of
-    JSON_INTEGER: Result := A.AsInteger - B;
-    JSON_BOOLEAN: Result := IfThen(A.AsBoolean, 1, 0) - B;
-    JSON_FLOAT: Result := A.AsFloat - Double(B);
-    JSON_STRING: Result := A.AsString + IntToStr(B);
-    JSON_ARRAY:
+  case B.FType of
+    XP_INTEGER: Result := A - B.AsInteger;
+    XP_BOOLEAN: Result := A - IfThen(B.AsBoolean, 1, 0);
+    XP_FLOAT: Result := Double(A) - B.AsFloat;
+    XP_STRING: Result := IntToStr(A) + B.AsString;
+    XP_ARRAY:
     begin
       Result := A;
       Result.AsArray.Push(B);
@@ -275,14 +328,31 @@ begin
   end;
 end;
 
-class operator TXPJson.Add(A: TXPJson; B: Integer): TXPJson;
+class operator XPVar.Subtract(A: XPVar; B: Integer): XPVar;
 begin
   case A.FType of
-    JSON_INTEGER: Result.AsInteger := A.AsInteger + B;
-    JSON_BOOLEAN: Result.AsInteger := A.AsInteger + B;
-    JSON_FLOAT: Result.AsFloat := A.AsFloat + B;
-    JSON_STRING: Result.AsString := A.AsString + IntToStr(B);
-    JSON_ARRAY:
+    XP_INTEGER: Result := A.AsInteger - B;
+    XP_BOOLEAN: Result := IfThen(A.AsBoolean, 1, 0) - B;
+    XP_FLOAT: Result := A.AsFloat - Double(B);
+    XP_STRING: Result := A.AsString + IntToStr(B);
+    XP_ARRAY:
+    begin
+      Result := A;
+      Result.AsArray.Push(B);
+    end;
+  else
+    Result := -B;
+  end;
+end;
+
+class operator XPVar.Add(A: XPVar; B: Integer): XPVar;
+begin
+  case A.FType of
+    XP_INTEGER: Result.AsInteger := A.AsInteger + B;
+    XP_BOOLEAN: Result.AsInteger := A.AsInteger + B;
+    XP_FLOAT: Result.AsFloat := A.AsFloat + B;
+    XP_STRING: Result.AsString := A.AsString + IntToStr(B);
+    XP_ARRAY:
     begin
       Result := A.AsArray;
       Result.AsArray.Push(B);
@@ -292,14 +362,14 @@ begin
   end;
 end;
 
-procedure TXPJson.Clear;
+procedure XPVar.Clear;
 begin
-  SetType(JSON_UNDEFINED);
+  SetType(XP_UNDEFINED);
 end;
 
-function TXPJson.EncodeText(AIndent: Integer): string;
+function XPVar.EncodeText(AIndent: Integer): string;
 var
-  arr: TXPJsonArray;
+  arr: TXPVarArray;
   n: Integer;
   spc, spc2, ret: string;
 begin
@@ -317,12 +387,12 @@ begin
     ret := ' ';
   end;
   case FType of
-    JSON_UNDEFINED, JSON_NULL: Result := 'null';
-    JSON_INTEGER: Result := IntToStr(AsInteger);
-    JSON_BOOLEAN: Result := IfThen(AsBoolean, 'true', 'false');
-    JSON_FLOAT: Result := FloatToStr(AsFloat);
-    JSON_STRING: Result := '"' + EscapeString(AsString) + '"';
-    JSON_ARRAY:
+    XP_UNDEFINED, XP_NULL: Result := 'null';
+    XP_INTEGER: Result := IntToStr(AsInteger);
+    XP_BOOLEAN: Result := IfThen(AsBoolean, 'true', 'false');
+    XP_FLOAT: Result := FloatToStr(AsFloat);
+    XP_STRING: Result := '"' + EscapeString(AsString) + '"';
+    XP_ARRAY:
     begin
       arr := AsArray;
       for n := 0 to arr.Count - 1 do
@@ -339,7 +409,7 @@ begin
   end;
 end;
 
-function TXPJson.EscapeString(AString: string): string;
+function XPVar.EscapeString(AString: string): string;
 var
   n, nmax: Integer;
   c, d: Char;
@@ -374,182 +444,216 @@ begin
   end;
 end;
 
-function TXPJson.GetAsArray: TXPJsonArray;
+function XPVar.GetAsArray: TXPVarArray;
 begin
-  if FType = JSON_ARRAY then
-    if TXPJsonArray(FInterface).FRefCount > 1 then
+  if FType = XP_ARRAY then
+    if TXPVarArray(FInterface).FRefCount > 1 then
     begin
-      Result := TXPJsonArray.Create;
-      Result.Assign(TXPJsonArray(FInterface));
+      Result := TXPVarArray.Create;
+      Result.Assign(TXPVarArray(FInterface));
       FInterface := Result;
     end
-    else Result := TXPJsonArray(FInterface)
+    else Result := TXPVarArray(FInterface)
   else
   begin
-    Result := TXPJsonArray.Create;
+    Result := TXPVarArray.Create;
     case FType of
-      JSON_INTEGER: TXPJsonArray(Result).Push(AsInteger);
-      JSON_BOOLEAN: TXPJsonArray(Result).Push(AsBoolean);
-      JSON_FLOAT: TXPJsonArray(Result).Push(AsFloat);
-      JSON_STRING: TXPJsonArray(Result).Push(AsString);
+      XP_INTEGER: TXPVarArray(Result).Push(AsInteger);
+      XP_BOOLEAN: TXPVarArray(Result).Push(AsBoolean);
+      XP_FLOAT: TXPVarArray(Result).Push(AsFloat);
+      XP_STRING: TXPVarArray(Result).Push(AsString);
+      XP_KEY: TXPVarArray(Result).Push(AsKey);
     end;
     FInterface := Result;
-    FType := JSON_ARRAY;
+    FType := XP_ARRAY;
   end;
 end;
 
-function TXPJson.GetAsBoolean: Boolean;
+function XPVar.GetAsBoolean: Boolean;
 var
   s: string;
 begin
   case FType of
-    JSON_INTEGER: Result := TXPJsonInteger(FInterface).Value <> 0;
-    JSON_BOOLEAN: Result := TXPJsonBoolean(FInterface).Value;
-    JSON_FLOAT: Result := TXPJsonFloat(FInterface).Value <> 0.0;
-    JSON_STRING:
+    XP_INTEGER: Result := TXPVarInteger(FInterface).Value <> 0;
+    XP_BOOLEAN: Result := TXPVarBoolean(FInterface).Value;
+    XP_FLOAT: Result := TXPVarFloat(FInterface).Value <> 0.0;
+    XP_STRING:
     begin
-      s := UpperCase(TXPJsonString(FInterface).Value);
+      s := UpperCase(TXPVarString(FInterface).Value);
       Result := (s = 'TRUE') or (StrToFloatDef(s, 0.0) <> 0.0);
     end;
-    JSON_ARRAY: Result := False;
+    XP_KEY: Result := TXPVarKey(FInterface).Value.AsBoolean;
+    XP_ARRAY: Result := False;
   else
     Result := False;
   end;
 end;
 
-function TXPJson.GetAsFloat: Double;
+function XPVar.GetAsFloat: Double;
 begin
   case FType of
-    JSON_INTEGER: Result := TXPJsonInteger(FInterface).Value;
-    JSON_BOOLEAN: Result := IfThen(TXPJsonBoolean(FInterface).Value, 1.0, 0.0);
-    JSON_FLOAT: Result := TXPJsonFloat(FInterface).Value;
-    JSON_STRING: Result := StrToFloatDef(TXPJsonString(FInterface).Value, 0.0);
-    JSON_ARRAY: Result := 0.0;
+    XP_INTEGER: Result := TXPVarInteger(FInterface).Value;
+    XP_BOOLEAN: Result := IfThen(TXPVarBoolean(FInterface).Value, 1.0, 0.0);
+    XP_FLOAT: Result := TXPVarFloat(FInterface).Value;
+    XP_STRING: Result := StrToFloatDef(TXPVarString(FInterface).Value, 0.0);
+    XP_KEY: Result := TXPVarKey(FInterface).Value.AsFloat;
+    XP_ARRAY: Result := 0.0;
   else
     Result := 0.0;
   end;
 end;
 
-function TXPJson.GetAsInteger: Integer;
+function XPVar.GetAsInteger: Integer;
 begin
   case FType of
-    JSON_INTEGER: Result := TXPJsonInteger(FInterface).Value;
-    JSON_BOOLEAN: Result := IfThen(TXPJsonBoolean(FInterface).Value, 1, 0);
-    JSON_FLOAT: Result := Round(TXPJsonFloat(FInterface).Value);
-    JSON_STRING: Result := StrToIntDef(TXPJsonString(FInterface).Value, 0);
-    JSON_ARRAY: Result := 0;
+    XP_INTEGER: Result := TXPVarInteger(FInterface).Value;
+    XP_BOOLEAN: Result := IfThen(TXPVarBoolean(FInterface).Value, 1, 0);
+    XP_FLOAT: Result := Round(TXPVarFloat(FInterface).Value);
+    XP_STRING: Result := StrToIntDef(TXPVarString(FInterface).Value, 0);
+    XP_KEY: Result := TXPVarKey(FInterface).Value.AsInteger;
+    XP_ARRAY: Result := 0;
   else
     Result := 0;
   end;
 end;
 
-function TXPJson.GetAsString: string;
+function XPVar.GetAsKey: TXPVarKey;
+begin
+  if FType = XP_KEY then
+    Result := TXPVarKey(FInterface)
+  else
+  begin
+    Result := TXPVarKey.Create;
+    case FType of
+      XP_INTEGER: TXPVarKey(Result).Value := AsInteger;
+      XP_BOOLEAN: TXPVarKey(Result).Value := AsBoolean;
+      XP_FLOAT: TXPVarKey(Result).Value := AsFloat;
+      XP_STRING: TXPVarKey(Result).Value := AsString;
+      XP_ARRAY: TXPVarKey(Result).Value := AsArray;
+    end;
+    FInterface := Result;
+    FType := XP_KEY;
+  end;
+end;
+
+function XPVar.GetAsString: string;
 begin
   case FType of
-    JSON_INTEGER: Result := IntToStr(TXPJsonInteger(FInterface).Value);
-    JSON_BOOLEAN: Result := IfThen(TXPJsonBoolean(FInterface).Value, '1', '0');
-    JSON_FLOAT: Result := FloatToStr(TXPJsonFloat(FInterface).Value);
-    JSON_STRING: Result := TXPJsonString(FInterface).Value;
-    JSON_ARRAY: Result := 'Array';
+    XP_INTEGER: Result := IntToStr(TXPVarInteger(FInterface).Value);
+    XP_BOOLEAN: Result := IfThen(TXPVarBoolean(FInterface).Value, '1', '0');
+    XP_FLOAT: Result := FloatToStr(TXPVarFloat(FInterface).Value);
+    XP_STRING: Result := TXPVarString(FInterface).Value;
+    XP_KEY: Result := TXPVarKey(FInterface).Value.AsString;
+    XP_ARRAY: Result := 'Array';
   else
     Result := '';
   end;
 end;
 
-function TXPJson.GetText: string;
+function XPVar.GetJSON: string;
 begin
   Result := EncodeText;
 end;
 
-function TXPJson.GetTextPretty: string;
+function XPVar.GetJSONPretty: string;
 begin
   Result := EncodeText(0);
 end;
 
-function TXPJson.GetValueOfBool(AKey: Boolean): TXPJson;
+function XPVar.GetValueOfBool(AKey: Boolean): XPVar;
 begin
   Result := GetValues(IfThen(AKey, '1', '0'));
 end;
 
-function TXPJson.GetValueOfInt(AKey: Integer): TXPJson;
+function XPVar.GetValueOfInt(AKey: Integer): XPVar;
 begin
   Result := GetValues(IntToStr(AKey));
 end;
 
-function TXPJson.GetValues(AKey: string): TXPJson;
+function XPVar.GetValues(AKey: string): XPVar;
 begin
-  if FType = JSON_ARRAY then
+  if FType = XP_ARRAY then
     Result := AsArray[AKey]
-  else raise Exception.Create('Can not get array member on other JSON type');
+  else raise Exception.Create('Can not get member on non ARRAY type.');
 end;
 
-class operator TXPJson.Implicit(AValue: Pointer): TXPJson;
+class operator XPVar.Implicit(AValue: Pointer): XPVar;
 begin
-  if (AValue <> nil) then raise Exception.Create('Can non assign pointer to JSON');
-  Result.Clear;
+  if (AValue <> nil) then raise Exception.Create('Can not assign pointer to XPVar');
+  Result.SetType(XP_NULL);
 end;
 
-class operator TXPJson.Implicit(AValue: Double): TXPJson;
+class operator XPVar.Implicit(AValue: Double): XPVar;
 begin
   Result.AsFloat := AValue;
 end;
 
-class operator TXPJson.Implicit(AValue: Integer): TXPJson;
+class operator XPVar.Implicit(AValue: Integer): XPVar;
 begin
   Result.AsInteger := AValue;
 end;
 
-class operator TXPJson.Implicit(AValue: Boolean): TXPJson;
+class operator XPVar.Implicit(AValue: Boolean): XPVar;
 begin
   Result.AsBoolean := AValue;
 end;
 
-class operator TXPJson.Implicit(AValue: string): TXPJson;
+class operator XPVar.Implicit(AValue: string): XPVar;
 begin
   Result.AsString := AValue;
 end;
 
-class operator TXPJson.Implicit(AValue: TXPJson): string;
+class operator XPVar.Implicit(AValue: XPVar): string;
 begin
   Result := AValue.AsString;
 end;
 
-class operator TXPJson.Negative(AValue: TXPJson): TXPJson;
+class operator XPVar.Implicit(AValue: TXPVarKey): XPVar;
+begin
+  Result.AsKey := AValue;
+end;
+
+class operator XPVar.Negative(AValue: XPVar): XPVar;
 begin
   case AValue.ValueType of
-    JSON_INTEGER: Result := -AValue.AsInteger;
-    JSON_BOOLEAN: Result := not AValue.AsBoolean;
-    JSON_FLOAT: Result := -AValue.AsFloat;
-    JSON_STRING: Result := ReverseString(AValue.AsString);
+    XP_INTEGER: Result := -AValue.AsInteger;
+    XP_BOOLEAN: Result := not AValue.AsBoolean;
+    XP_FLOAT: Result := -AValue.AsFloat;
+    XP_STRING: Result := ReverseString(AValue.AsString);
+    XP_KEY:
+    begin
+      Result := AValue;
+      TXPVarKey(Result.FInterface).Value := -Result.AsKey.Value;
+    end
   else
     Result := AValue;
   end;
 end;
 
-class operator TXPJson.Implicit(AValue: TXPJsonArray): TXPJson;
+class operator XPVar.Implicit(AValue: TXPVarArray): XPVar;
 begin
   Result.Clear;
-  Result.AsArray.Assign(TXPJsonArray(AValue));
+  Result.AsArray.Assign(TXPVarArray(AValue));
 end;
 
-class operator TXPJson.Implicit(AValue: TXPJson): Double;
+class operator XPVar.Implicit(AValue: XPVar): Double;
 begin
   Result := AValue.AsFloat;
 end;
 
-class operator TXPJson.Implicit(AValue: TXPJson): Integer;
+class operator XPVar.Implicit(AValue: XPVar): Integer;
 begin
   Result := AValue.AsInteger;
 end;
 
-class operator TXPJson.Implicit(AValue: TXPJson): Boolean;
+class operator XPVar.Implicit(AValue: XPVar): Boolean;
 begin
   Result := AValue.AsBoolean;
 end;
 
-{ TXPJsonArray }
+{ TXPVarArray }
 
-procedure TXPJsonArray.Assign(AArray: TXPJsonArray);
+procedure TXPVarArray.Assign(AArray: TXPVarArray);
 var
   n: Integer;
 begin
@@ -562,7 +666,7 @@ begin
   FAssociated := AArray.FAssociated;
 end;
 
-procedure TXPJsonArray.Clear;
+procedure TXPVarArray.Clear;
 var
   n: Integer;
 begin
@@ -570,45 +674,45 @@ begin
   while n > 0 do
   begin
     Dec(n);
-    FItems[n].Value.SetType(JSON_UNDEFINED);
+    FItems[n].Value.SetType(XP_UNDEFINED);
   end;
   FItems := nil;
 end;
 
-function TXPJsonArray.Count: Integer;
+function TXPVarArray.Count: Integer;
 begin
   Result := Length(FItems);
 end;
 
-constructor TXPJsonArray.Create;
+constructor TXPVarArray.Create;
 begin
   FItems := nil;
   FIndex := 0;
   FAssociated := False;
 end;
 
-destructor TXPJsonArray.Destroy;
+destructor TXPVarArray.Destroy;
 begin
   Clear;
   inherited Destroy;
 end;
 
-function TXPJsonArray.GetAssociated: Boolean;
+function TXPVarArray.GetAssociated: Boolean;
 begin
   Result := FAssociated;
 end;
 
-function TXPJsonArray.GetItems(AIndex: Integer): TXPJsonItem;
+function TXPVarArray.GetItems(AIndex: Integer): XPVarItem;
 begin
   Result := FItems[AIndex];
 end;
 
-function TXPJsonArray.GetKeys(AIndex: Integer): string;
+function TXPVarArray.GetKeys(AIndex: Integer): string;
 begin
   Result := FItems[AIndex].Key;
 end;
 
-function TXPJsonArray.GetValues(AKey: string): TXPJson;
+function TXPVarArray.GetValues(AKey: string): XPVar;
 var
   n: Integer;
 begin
@@ -618,7 +722,7 @@ begin
   else Result := nil;
 end;
 
-function TXPJsonArray.IndexOf(AKey: string; AStart, AStop: Integer): Integer;
+function TXPVarArray.IndexOf(AKey: string; AStart, AStop: Integer): Integer;
 var
   n: integer;
 begin
@@ -631,20 +735,31 @@ begin
   end;
 end;
 
-function TXPJsonArray.Push(AValue: TXPJson): Integer;
+function TXPVarArray.Push(AValue: XPVar): Integer;
+var
+  key: TXPVarKey;
 begin
-  Result := FIndex;
-  SetValues(IntToStr(Result), AValue);
+  if AValue.FType = XP_KEY then
+  begin
+    key := AValue.AsKey;
+    SetValues(key.Key, key.Value);
+    Result := IndexOf(key.Key);
+  end
+  else
+  begin
+    Result := FIndex;
+    SetValues(IntToStr(Result), AValue);
+  end;
 end;
 
-procedure TXPJsonArray.SetAssociated(AValue: Boolean);
+procedure TXPVarArray.SetAssociated(AValue: Boolean);
 begin
   FAssociated := AValue;
 end;
 
-procedure TXPJsonArray.SetValues(AKey: string; AValue: TXPJson);
+procedure TXPVarArray.SetValues(AKey: string; AValue: XPVar);
 var
-  v: TXPJsonItem;
+  v: XPVarItem;
   n: Integer;
 begin
   n := IndexOf(AKey);
@@ -662,37 +777,37 @@ begin
   end;
 end;
 
-{ TXPJsonString }
+{ TXPVarString }
 
-constructor TXPJsonString.Create(AValue: string);
+constructor TXPVarString.Create(AValue: string);
 begin
   Value := AValue;
 end;
 
-{ TXPJsonInteger }
+{ TXPVarInteger }
 
-constructor TXPJsonInteger.Create(AValue: Integer);
+constructor TXPVarInteger.Create(AValue: Integer);
 begin
   Value := AValue;
 end;
 
-{ TXPJsonBoolean }
+{ TXPVarBoolean }
 
-constructor TXPJsonBoolean.Create(AValue: Boolean);
+constructor TXPVarBoolean.Create(AValue: Boolean);
 begin
   Value := AValue;
 end;
 
-{ TXPJsonFloat }
+{ TXPVarFloat }
 
-constructor TXPJsonFloat.Create(AValue: Double);
+constructor TXPVarFloat.Create(AValue: Double);
 begin
   Value := AValue;
 end;
 
-{ TXPJsonCodec }
+{ XPVarCodec }
 
-function TXPJsonCodec.Decode(AText: string): TXPJson;
+function XPVarCodec.Decode(AText: string): XPVar;
 begin
   FText := AText;
   FPos := 1;
@@ -700,14 +815,14 @@ begin
   Result := GetValue;
 end;
 
-function TXPJsonCodec.GetChar: Char;
+function XPVarCodec.GetChar: Char;
 begin
   if FPos <= FMaxPos then
     Result := FText[FPos]
   else Result := #26;
 end;
 
-function TXPJsonCodec.GetNumber: TXPJson;
+function XPVarCodec.GetNumber: XPVar;
 var
   apos: Integer;
   s: string;
@@ -738,7 +853,7 @@ begin
   else Result := StrToIntDef(s, 0);
 end;
 
-function TXPJsonCodec.GetString: string;
+function XPVarCodec.GetString: string;
 var
   c: Char;
 begin
@@ -781,7 +896,7 @@ begin
   Inc(FPos);
 end;
 
-function TXPJsonCodec.GetTrim: Char;
+function XPVarCodec.GetTrim: Char;
 begin
   Result := GetChar;
   while ((Result = ' ') or (Result = #13) or (Result = #10) or (Result = #9)) do
@@ -791,20 +906,20 @@ begin
   end;
 end;
 
-function TXPJsonCodec.GetValue: TXPJson;
+function XPVarCodec.GetValue: XPVar;
 var
-  arr: TXPJsonArray;
-  v: TXPJson;
+  arr: TXPVarArray;
+  v: XPVar;
   s: string;
   c: Char;
 begin
-  Result := nil;
+  Result.Clear;
   c := UpCase(GetTrim);
   case c of
     'N':
       if UpperCase(Copy(FText, FPos, 4)) = 'NULL' then
       begin
-        Result := JsonNull;
+        Result := XPNull;
         Inc(FPos, 4);
       end
       else raise Exception.Create('Invalid JSON value.');
@@ -827,7 +942,7 @@ begin
       Inc(FPos);
       arr := Result.AsArray;
       v := GetValue;
-      while v.ValueType <> JSON_UNDEFINED do
+      while v.ValueType <> XP_UNDEFINED do
       begin
         arr.Push(v);
         c := GetTrim;
@@ -836,7 +951,7 @@ begin
           Inc(FPos);
           v := GetValue;
         end
-        else v := nil;
+        else v.Clear;
       end;
       c := GetTrim;
       if c = ']' then
@@ -881,6 +996,32 @@ begin
   else
     raise Exception.Create('Invalid JSON data.');
   end;
+end;
+
+{ TXPVarKey }
+
+constructor TXPVarKey.Create;
+begin
+  Key := '';
+  Value.SetType(XP_UNDEFINED);
+end;
+
+constructor TXPVarKey.Create(AKey: string; AValue: XPVar);
+begin
+  Key := AKey;
+  Value := AValue;
+end;
+
+constructor TXPVarKey.Create(AKey: Boolean; AValue: XPVar);
+begin
+  Key := IfThen(AKey, '1', '0');
+  Value := AValue;
+end;
+
+constructor TXPVarKey.Create(AKey: Integer; AValue: XPVar);
+begin
+  Key := IntToStr(AKey);
+  Value := AValue;
 end;
 
 end.
